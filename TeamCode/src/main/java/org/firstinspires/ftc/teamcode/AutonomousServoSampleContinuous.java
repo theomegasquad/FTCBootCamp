@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -17,19 +18,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 
-@Autonomous(name="Autonomous Servo Sample", group="Linear Opmode")
-public class AutonomousServoSample extends LinearOpMode {
+@Autonomous(name="Autonomous Servo Sample Continuous", group="Linear Opmode")
+public class AutonomousServoSampleContinuous extends LinearOpMode {
 
     public DcMotor leftFront;
     public DcMotor rightFront;
     public DcMotor leftBack;
     public DcMotor rightBack;
 
-    final double MAX_POS     =  1.0;
-    final double MIN_POS     =  0.0;
 
-    public Servo servo;
-    double  position = (MAX_POS - MIN_POS) / 2;
+
+    public CRServo servo;
+    double  speed = 0.4;
 
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -45,31 +45,24 @@ public class AutonomousServoSample extends LinearOpMode {
         leftBack = hardwareMap.dcMotor.get("leftBack");
         rightBack = hardwareMap.dcMotor.get("rightBack");
 
-        servo = hardwareMap.get(Servo.class, "servo");
+        servo = hardwareMap.get(CRServo.class, "servo");
 
 
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        boolean forwarDir = true;
-        while(opModeIsActive()) {
+        runtime.reset();
 
-            if (forwarDir) {
-                position += 0.02;
-                if (position >= MAX_POS) {
-                    position = MAX_POS;
-                    forwarDir = !forwarDir;
-                }
+        while(opModeIsActive()) {
+            servo.setPower(speed);
+
+            while (runtime.seconds() < 4){
+                telemetry.addData("Direction", "Forward");
+                telemetry.update();
             }
-            else {
-                position -= 0.02;
-                if (position <= MIN_POS) {
-                    position = MIN_POS;
-                    forwarDir = !forwarDir;
-                }
-            }
-            servo.setPosition(position);
+
+            speed *= -1;
 
         }
         brake();
